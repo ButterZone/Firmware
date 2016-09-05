@@ -106,8 +106,6 @@
 #include <uORB/topics/vtol_vehicle_status.h>
 #include <uORB/uORB.h>
 
-#include <string>
-
 /* oddly, ERROR is not defined for c++ */
 #ifdef ERROR
 # undef ERROR
