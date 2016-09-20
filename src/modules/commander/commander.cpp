@@ -3403,7 +3403,28 @@ set_control_mode()
 	control_mode.flag_control_offboard_enabled = false;
 
 	switch (status.nav_state) {
+	//##
+	// add flip mode control modes
+	case vehicle_status_s::NAVIGATION_STATE_FLIP:
+		control_mode.flag_control_flip_enabled = true;
+		control_mode.flag_control_manual_enabled = true;
+		control_mode.flag_control_auto_enabled = false;
+		control_mode.flag_control_rates_enabled = true;
+		control_mode.flag_control_attitude_enabled = false;
+		control_mode.flag_control_rattitude_enabled = false;
+		control_mode.flag_control_altitude_enabled = false;
+		control_mode.flag_control_climb_rate_enabled = false;
+		control_mode.flag_control_position_enabled = false;
+		control_mode.flag_control_velocity_enabled = false;
+		control_mode.flag_control_acceleration_enabled = false;
+		control_mode.flag_control_termination_enabled = false;
+		break;
+	//##
+
+
+
 	case vehicle_status_s::NAVIGATION_STATE_MANUAL:
+		control_mode.flag_control_flip_enabled = false;
 		control_mode.flag_control_manual_enabled = true;
 		control_mode.flag_control_auto_enabled = false;
 		control_mode.flag_control_rates_enabled = stabilization_required();
@@ -3418,6 +3439,7 @@ set_control_mode()
 		break;
 
 	case vehicle_status_s::NAVIGATION_STATE_STAB:
+		control_mode.flag_control_flip_enabled = false;
 		control_mode.flag_control_manual_enabled = true;
 		control_mode.flag_control_auto_enabled = false;
 		control_mode.flag_control_rates_enabled = true;
@@ -3434,6 +3456,7 @@ set_control_mode()
 		break;
 
 	case vehicle_status_s::NAVIGATION_STATE_RATTITUDE:
+		control_mode.flag_control_flip_enabled = false;
 		control_mode.flag_control_manual_enabled = true;
 		control_mode.flag_control_auto_enabled = false;
 		control_mode.flag_control_rates_enabled = true;
@@ -3448,6 +3471,7 @@ set_control_mode()
 		break;
 
 	case vehicle_status_s::NAVIGATION_STATE_ALTCTL:
+		control_mode.flag_control_flip_enabled = false;
 		control_mode.flag_control_manual_enabled = true;
 		control_mode.flag_control_auto_enabled = false;
 		control_mode.flag_control_rates_enabled = true;
@@ -3462,6 +3486,7 @@ set_control_mode()
 		break;
 
 	case vehicle_status_s::NAVIGATION_STATE_POSCTL:
+		control_mode.flag_control_flip_enabled = false;
 		control_mode.flag_control_manual_enabled = true;
 		control_mode.flag_control_auto_enabled = false;
 		control_mode.flag_control_rates_enabled = true;
@@ -3487,6 +3512,7 @@ set_control_mode()
 	case vehicle_status_s::NAVIGATION_STATE_AUTO_MISSION:
 	case vehicle_status_s::NAVIGATION_STATE_AUTO_LOITER:
 	case vehicle_status_s::NAVIGATION_STATE_AUTO_TAKEOFF:
+		control_mode.flag_control_flip_enabled = false;
 		control_mode.flag_control_manual_enabled = false;
 		control_mode.flag_control_auto_enabled = true;
 		control_mode.flag_control_rates_enabled = true;
@@ -3501,6 +3527,7 @@ set_control_mode()
 		break;
 
 	case vehicle_status_s::NAVIGATION_STATE_AUTO_LANDGPSFAIL:
+		control_mode.flag_control_flip_enabled = false;
 		control_mode.flag_control_manual_enabled = false;
 		control_mode.flag_control_auto_enabled = false;
 		control_mode.flag_control_rates_enabled = true;
@@ -3515,6 +3542,7 @@ set_control_mode()
 		break;
 
 	case vehicle_status_s::NAVIGATION_STATE_ACRO:
+		control_mode.flag_control_flip_enabled = false;
 		control_mode.flag_control_manual_enabled = true;
 		control_mode.flag_control_auto_enabled = false;
 		control_mode.flag_control_rates_enabled = true;
@@ -3529,6 +3557,7 @@ set_control_mode()
 		break;
 
 	case vehicle_status_s::NAVIGATION_STATE_DESCEND:
+		control_mode.flag_control_flip_enabled = false;
 		/* TODO: check if this makes sense */
 		control_mode.flag_control_manual_enabled = false;
 		control_mode.flag_control_auto_enabled = true;
@@ -3544,6 +3573,7 @@ set_control_mode()
 		break;
 
 	case vehicle_status_s::NAVIGATION_STATE_TERMINATION:
+		control_mode.flag_control_flip_enabled = false;
 		/* disable all controllers on termination */
 		control_mode.flag_control_manual_enabled = false;
 		control_mode.flag_control_auto_enabled = false;
@@ -3559,6 +3589,7 @@ set_control_mode()
 		break;
 
 	case vehicle_status_s::NAVIGATION_STATE_OFFBOARD:
+		control_mode.flag_control_flip_enabled = false;
 		control_mode.flag_control_manual_enabled = false;
 		control_mode.flag_control_auto_enabled = false;
 		control_mode.flag_control_offboard_enabled = true;
