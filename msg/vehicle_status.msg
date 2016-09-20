@@ -40,12 +40,20 @@ uint8 RC_IN_MODE_DEFAULT = 0
 uint8 RC_IN_MODE_OFF = 1
 uint8 RC_IN_MODE_GENERATED = 2
 
+# Flip state
+uint8 FLIP_STATE_DISABLED = 0
+uint8 FLIP_STATE_START = 1
+uint8 FLIP_STATE_ROLL = 2
+uint8 FLIP_STATE_RECOVER = 3
+uint8 FLIP_STATE_FINISHED = 4
+
 # state machine / state of vehicle.
 # Encodes the complete system state and is set by the commander app.
 
 uint8 nav_state				# set navigation state machine to specified value
 uint8 arming_state			# current arming state
 uint8 hil_state				# current hil state
+uint8 flip_state 			# current flip state
 bool failsafe				# true if system is in failsafe state
 
 uint8 system_type			# system type, contains mavlink MAV_TYPE
