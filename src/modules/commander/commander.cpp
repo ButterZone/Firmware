@@ -609,6 +609,8 @@ void print_status()
 	warnx("home: lat = %.7f, lon = %.7f, alt = %.2f, yaw: %.2f", _home.lat, _home.lon, (double)_home.alt, (double)_home.yaw);
 	warnx("home: x = %.7f, y = %.7f, z = %.2f ", (double)_home.x, (double)_home.y, (double)_home.z);
 	warnx("datalink: %s", (status.data_link_lost) ? "LOST" : "OK");
+	//##
+	warnx("flip state: %d", status.flip_state);
 
 #ifdef __PX4_POSIX
 	warnx("main state: %d", internal_state.main_state);
