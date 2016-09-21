@@ -1320,6 +1320,10 @@ int commander_thread_main(int argc, char *argv[])
 	main_state_prev = commander_state_s::MAIN_STATE_MAX;
 	status.nav_state = vehicle_status_s::NAVIGATION_STATE_MANUAL;
 	status.arming_state = vehicle_status_s::ARMING_STATE_INIT;
+	//##
+	// set flip state to be disabled by default
+	status.flip_state = vehicle_status_s::FLIP_STATE_DISABLED;
+	//##
 
 	if (startup_in_hil) {
 		status.hil_state = vehicle_status_s::HIL_STATE_ON;
