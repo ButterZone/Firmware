@@ -3413,9 +3413,9 @@ set_control_mode()
 	// add flip mode control modes
 	case vehicle_status_s::NAVIGATION_STATE_FLIP:
 		control_mode.flag_control_flip_enabled = true;
-		control_mode.flag_control_manual_enabled = true;
+		control_mode.flag_control_manual_enabled = false;
 		control_mode.flag_control_auto_enabled = false;
-		control_mode.flag_control_rates_enabled = true;
+		control_mode.flag_control_rates_enabled = false;
 		control_mode.flag_control_attitude_enabled = false;
 		control_mode.flag_control_rattitude_enabled = false;
 		control_mode.flag_control_altitude_enabled = false;
