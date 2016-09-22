@@ -13,26 +13,10 @@
 #include <arch/board/board.h>
 #include <uORB/uORB.h>
 #include <uORB/topics/vehicle_attitude_setpoint.h>
-#include <uORB/topics/manual_control_setpoint.h>
-#include <uORB/topics/actuator_controls.h>
 #include <uORB/topics/vehicle_rates_setpoint.h>
-#include <uORB/topics/fw_virtual_rates_setpoint.h>
-#include <uORB/topics/mc_virtual_rates_setpoint.h>
 #include <uORB/topics/control_state.h>
 #include <uORB/topics/vehicle_control_mode.h>
 #include <uORB/topics/vehicle_status.h>
-#include <uORB/topics/actuator_armed.h>
-#include <uORB/topics/parameter_update.h>
-#include <uORB/topics/multirotor_motor_limits.h>
-#include <uORB/topics/mc_att_ctrl_status.h>
-#include <systemlib/param/param.h>
-#include <systemlib/err.h>
-#include <systemlib/perf_counter.h>
-#include <systemlib/systemlib.h>
-#include <systemlib/circuit_breaker.h>
-#include <lib/mathlib/mathlib.h>
-#include <lib/geo/geo.h>
-#include <lib/tailsitter_recovery/tailsitter_recovery.h>
 /*
  * flip_state_switch.cpp
  *
@@ -42,8 +26,145 @@
 
 extern "C" __EXPORT int flip_state_switch_main(int argc, char *argv[]);
 
+class FlipStateSwitch
+{
+public:
+	/**
+	 * Constructor
+	 */
+	FlipStateSwitch();
+
+	/**
+	 * Destructor, also kills the main task
+	 */
+	~FlipStateSwitch();
+
+	/**
+	 * Start the flip state switch task
+	 *
+	 * @return OK on success
+	 */
+	int start();
+
+private:
+
+	bool 	_task_should_exit;		/**< if true, task_main() should exit */
+	int 	_control_task; 			/**< task handle */
+
+	/**
+	 * Shim for calling task_main from task_create
+	 */
+	static void task_main_trampoline(int argc, char *argv[]);
+
+	/**
+	 * Main attitude control task
+	 */
+	void 		task_main();
+};
+
+namespace flip_state_switch
+{
+FlipStateSwitch *g_control;
+}
+
+FlipStateSwitch::FlipStateSwitch() :
+		_task_should_exit(false),
+		_control_task(-1)
+{
+
+}
+
+FlipStateSwitch::~FlipStateSwitch()
+{
+	_task_should_exit = true;
+
+	flip_state_switch::g_control = nullptr;
+}
+
+void FlipStateSwitch::task_main_trampoline(int argc, char *argv[])
+{
+	flip_state_switch::g_control->task_main();
+}
+
+void FlipStateSwitch::task_main()
+{
+	PX4_INFO("Hello");
+}
+
+int FlipStateSwitch::start()
+{
+	ASSERT(_control_task == -1);
+
+	/* start the task */
+	_control_task = px4_task_spawn_cmd("flip_state_switch",
+						SCHED_DEFAULT,
+						SCHED_PRIORITY_MAX - 5,
+						1500,
+						(px4_main_t)&FlipStateSwitch::task_main_trampoline,
+						nullptr);
+
+	if (_control_task < 0) {
+		warn("task start failed");
+		return -errno;
+	}
+
+	return OK;
+}
+
 int flip_state_switch_main(int argc, char *argv[])
 {
-	PX4_INFO("It is working");
+	if (argc < 2) {
+		warnx("usage: flip_state_switch {start|stop|status}");
+		return 1;
+	}
+
+	if (!strcmp(argv[1], "start")) {
+
+		if (flip_state_switch::g_control != nullptr) {
+			warnx("already running");
+			return 1;
+		}
+
+		flip_state_switch::g_control = new FlipStateSwitch;
+
+		if (flip_state_switch::g_control == nullptr) {
+			warnx("alloc failed");
+			return 1;
+		}
+
+		if (OK != flip_state_switch::g_control->start()) {
+			delete flip_state_switch::g_control;
+			flip_state_switch::g_control = nullptr;
+			warnx("start failed");
+			return 1;
+		}
+
+		return 0;
+	}
+
+	if (!strcmp(argv[1], "stop")) {
+		if (flip_state_switch::g_control == nullptr) {
+			warnx("not running");
+			return 1;
+		}
+
+		delete flip_state_switch::g_control;
+		flip_state_switch::g_control = nullptr;
+		return 0;
+	}
+
+	if (!strcmp(argv[1], "status")) {
+		if (flip_state_switch::g_control) {
+			warnx("running");
+			return 0;
+
+		} else {
+			warnx("not running");
+			return 1;
+		}
+	}
+
+	warnx("unrecognized command");
+
 	return 0;
 }
