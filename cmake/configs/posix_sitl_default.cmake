@@ -55,6 +55,8 @@ set(config_module_list
 	modules/systemlib/mixer
 	modules/uORB
 	modules/vtol_att_control
+	# flip mode
+	modules/flip_state_switch
 
 	lib/controllib
 	lib/conversion
