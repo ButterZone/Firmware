@@ -96,7 +96,19 @@ void FlipStateSwitch::task_main_trampoline(int argc, char *argv[])
 
 void FlipStateSwitch::task_main()
 {
+	/* decide if it is safe to enter flip mode */
 
+	/* capture original flight mode so we can return to it */
+
+	/* always disable flip at initialization */
+
+	/* capture the current attitude for recovery */
+
+	/* start main task while loop */
+
+		/* check if flip mode is enabled */
+
+		/* switch cases between flip states */
 }
 
 int FlipStateSwitch::start()
