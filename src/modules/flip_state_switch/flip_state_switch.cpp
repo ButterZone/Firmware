@@ -111,6 +111,15 @@ void FlipStateSwitch::task_main_trampoline(int argc, char *argv[])
 
 void FlipStateSwitch::task_main()
 {
+	/*
+	 * do subscriptions
+	 */
+	_vehicle_status_sub = orb_subscribe(ORB_ID(vehicle_status));
+
+	/* wake up source: vehicle status */
+	px4_pollfd_struct_t fds[] = {
+			{ .fd = _vehicle_status_sub, 	.events = POLLIN },
+	};
 	/* decide if it is safe to enter flip mode */
 
 	/* capture original flight mode so we can return to it */
@@ -120,20 +129,49 @@ void FlipStateSwitch::task_main()
 	/* capture the current attitude for recovery */
 
 	/* start main task while loop */
+	while (!_task_should_exit) {
 
-		/* check if flip mode is enabled */
+		/* wait for up to 100ms for data */
+		int pret = px4_poll(&fds[0], (sizeof(fds) / sizeof(fds[0])), 100);
 
-		/* switch cases between flip states */
+		/* timed out - periodic check for _taks_should_exit */
+		if (pret == 0) {
+			continue;
+		}
 
-		// disable state
+		/* no data */
+		if (pret < 0) {
+			warn("flip_state_switch: poll error %d, %d", pret, errno);
+			/* sleep a bit before next try */
+			usleep(100000);
+			continue;
+		}
 
-		// start state
+		/* run controller */
+		if (fds[0].revents & POLLIN) {
 
-		// roll state
 
-		// recover state
+			/* copy vehicle status topic */
+			orb_copy(ORB_ID(vehicle_status), _vehicle_status_sub, &_vehicle_status);
 
-		// finished state
+			/* check for updates in other topics */
+
+			/* check if flip mode is enabled */
+
+			/* switch cases between flip states */
+
+			// disable state
+
+			// start state
+
+			// roll state
+
+			// recover state
+
+			// finished state
+		}
+	}
+
 }
 
 int FlipStateSwitch::start()
