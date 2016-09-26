@@ -21,10 +21,18 @@
  * flip_state_switch.cpp
  *
  *  Created on: 22Sep.,2016
- *      Author: root
+ *      Author: Zihao
  */
 
+#define FLIP_THR_INC		0.20f	// throttle increase during flip_start
+#define FLIP_THR_DEC		0.24f	// throttle decrease during flip_roll
+#define FLIP_ROTATION_RATE	400.0f*3.14/180 // 400 deg/sec rotation rate
+#define FLIP_RECOVERY_ANGLE 5.0f*3.14/180	// consider succesful recovery when roll i back within 5 degrees
+
+
 extern "C" __EXPORT int flip_state_switch_main(int argc, char *argv[]);
+
+
 
 class FlipStateSwitch
 {
@@ -88,7 +96,7 @@ void FlipStateSwitch::task_main_trampoline(int argc, char *argv[])
 
 void FlipStateSwitch::task_main()
 {
-	PX4_INFO("Hello");
+
 }
 
 int FlipStateSwitch::start()
