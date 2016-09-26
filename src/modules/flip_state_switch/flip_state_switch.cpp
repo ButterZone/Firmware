@@ -59,6 +59,14 @@ private:
 	bool 	_task_should_exit;		/**< if true, task_main() should exit */
 	int 	_control_task; 			/**< task handle */
 
+	int 	_vehicle_status_sub; 	/**< vehicle status subscription */
+
+	orb_advert_t 	_vehicle_status_pub;	/**< vehicle status publication */
+
+	orb_id_t 		_vehicle_status_id;		/**< pointer to correct vehicle status uORB metadata structure */
+
+	struct vehicle_status_s 		_vehicle_status; 	/**< vehicle status structure */
+
 	/**
 	 * Shim for calling task_main from task_create
 	 */
@@ -77,9 +85,16 @@ FlipStateSwitch *g_control;
 
 FlipStateSwitch::FlipStateSwitch() :
 		_task_should_exit(false),
-		_control_task(-1)
-{
+		_control_task(-1),
 
+		/* subscription */
+		_vehicle_status_sub(-1),
+		_vehicle_status_id(0),
+
+		/* publication */
+		_vehicle_status_pub(nullptr)
+{
+	memset(&_vehicle_status, 0, sizeof(_vehicle_status));
 }
 
 FlipStateSwitch::~FlipStateSwitch()
@@ -109,6 +124,16 @@ void FlipStateSwitch::task_main()
 		/* check if flip mode is enabled */
 
 		/* switch cases between flip states */
+
+		// disable state
+
+		// start state
+
+		// roll state
+
+		// recover state
+
+		// finished state
 }
 
 int FlipStateSwitch::start()
