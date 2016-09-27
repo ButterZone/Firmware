@@ -52,8 +52,6 @@ public:
 	 */
 	int start();
 
-	void print_state();
-
 private:
 
 	bool 	_task_should_exit;		/**< if true, task_main() should exit */
@@ -103,11 +101,6 @@ FlipStateSwitch::~FlipStateSwitch()
 	_task_should_exit = true;
 
 	flip_state_switch::g_control = nullptr;
-}
-
-void FlipStateSwitch::print_state()
-{
-	warnx("Flip state: %d", _vehicle_status.flip_state);
 }
 
 void FlipStateSwitch::task_main_trampoline(int argc, char *argv[])
@@ -173,46 +166,10 @@ void FlipStateSwitch::task_main()
 
 
 			/* switch cases between flip states */
-//			switch (_vehicle_status.flip_state) {
-//
-//			case vehicle_status_s::FLIP_STATE_DISABLED:
-//				if (counter >= 200000) {
-//					_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_START;
-//				}
-//				break;
-//
-//			case vehicle_status_s::FLIP_STATE_START:
-//				if (counter >= 400000) {
-//					_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_ROLL;
-//				}
-//				break;
-//
-//			case vehicle_status_s::FLIP_STATE_ROLL:
-//				if (counter >= 600000) {
-//					_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_RECOVER;
-//				}
-//				break;
-//
-//			case vehicle_status_s::FLIP_STATE_RECOVER:
-//				if (counter >= 800000) {
-//					_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_FINISHED;
-//				}
-//				break;
-//
-//			case vehicle_status_s::FLIP_STATE_FINISHED:
-//				if (counter > 1000000) {
-//					_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_DISABLED;
-//				}
-//				break;
-//			}
-
-//			_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_FINISHED;
 
 			if (_vehicle_status_pub != nullptr) {
-//				warn("Publishing");
 				orb_publish(ORB_ID(vehicle_status), _vehicle_status_pub, &_vehicle_status);
 			} else {
-//				warn("Not publishing");
 				_vehicle_status_pub = orb_advertise(ORB_ID(vehicle_status), &_vehicle_status);
 			}
 
@@ -293,10 +250,6 @@ int flip_state_switch_main(int argc, char *argv[])
 			warnx("not running");
 			return 1;
 		}
-	}
-
-	if (!strcmp(argv[1], "state")) {
-		flip_state_switch::g_control->print_state();
 	}
 
 	warnx("unrecognized command");
