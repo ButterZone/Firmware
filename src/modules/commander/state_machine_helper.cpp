@@ -696,6 +696,7 @@ bool set_nav_state(struct vehicle_status_s *status, struct commander_state_s *in
 			//##
 			case commander_state_s::MAIN_STATE_FLIP:
 				status->nav_state = vehicle_status_s::NAVIGATION_STATE_FLIP;
+				status->flip_state = vehicle_status_s::FLIP_STATE_START;
 				break;
 			//##
 
