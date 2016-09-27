@@ -52,6 +52,11 @@ public:
 	 */
 	int start();
 
+	/**
+	 * little function to print the current flip state
+	 */
+	void print_state();
+
 private:
 
 	bool 	_task_should_exit;		/**< if true, task_main() should exit */
@@ -101,6 +106,11 @@ FlipStateSwitch::~FlipStateSwitch()
 	_task_should_exit = true;
 
 	flip_state_switch::g_control = nullptr;
+}
+
+void FlipStateSwitch::print_state()
+{
+	warnx("Flip state: %d", _vehicle_status.flip_state);
 }
 
 void FlipStateSwitch::task_main_trampoline(int argc, char *argv[])
@@ -250,6 +260,14 @@ int flip_state_switch_main(int argc, char *argv[])
 			warnx("not running");
 			return 1;
 		}
+	}
+
+	/*
+	 * print flip state function
+	 */
+	if (!strcmp(argv[1], "state")) {
+		flip_state_switch::g_control->print_state();
+		return 0;
 	}
 
 	warnx("unrecognized command");
