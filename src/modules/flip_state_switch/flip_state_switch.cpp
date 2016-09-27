@@ -32,8 +32,6 @@
 
 extern "C" __EXPORT int flip_state_switch_main(int argc, char *argv[]);
 
-
-
 class FlipStateSwitch
 {
 public:
@@ -54,6 +52,8 @@ public:
 	 */
 	int start();
 
+	void print_state();
+
 private:
 
 	bool 	_task_should_exit;		/**< if true, task_main() should exit */
@@ -72,6 +72,7 @@ private:
 	 */
 	static void task_main_trampoline(int argc, char *argv[]);
 
+
 	/**
 	 * Main attitude control task
 	 */
@@ -89,10 +90,10 @@ FlipStateSwitch::FlipStateSwitch() :
 
 		/* subscription */
 		_vehicle_status_sub(-1),
-		_vehicle_status_id(0),
 
 		/* publication */
-		_vehicle_status_pub(nullptr)
+		_vehicle_status_pub(nullptr),
+		_vehicle_status_id(0)
 {
 	memset(&_vehicle_status, 0, sizeof(_vehicle_status));
 }
@@ -102,6 +103,11 @@ FlipStateSwitch::~FlipStateSwitch()
 	_task_should_exit = true;
 
 	flip_state_switch::g_control = nullptr;
+}
+
+void FlipStateSwitch::print_state()
+{
+	warnx("Flip state: %d", _vehicle_status.flip_state);
 }
 
 void FlipStateSwitch::task_main_trampoline(int argc, char *argv[])
@@ -129,7 +135,9 @@ void FlipStateSwitch::task_main()
 	/* capture the current attitude for recovery */
 
 	/* start main task while loop */
+
 	while (!_task_should_exit) {
+
 
 		/* wait for up to 100ms for data */
 		int pret = px4_poll(&fds[0], (sizeof(fds) / sizeof(fds[0])), 100);
@@ -152,24 +160,64 @@ void FlipStateSwitch::task_main()
 
 
 			/* copy vehicle status topic */
-			orb_copy(ORB_ID(vehicle_status), _vehicle_status_sub, &_vehicle_status);
+			bool vehicle_status_updated;
+			orb_check(_vehicle_status_sub, &vehicle_status_updated);
+
+			if (vehicle_status_updated) {
+				orb_copy(ORB_ID(vehicle_status), _vehicle_status_sub, &_vehicle_status);
+			}
 
 			/* check for updates in other topics */
 
 			/* check if flip mode is enabled */
 
+
 			/* switch cases between flip states */
+//			switch (_vehicle_status.flip_state) {
+//
+//			case vehicle_status_s::FLIP_STATE_DISABLED:
+//				if (counter >= 200000) {
+//					_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_START;
+//				}
+//				break;
+//
+//			case vehicle_status_s::FLIP_STATE_START:
+//				if (counter >= 400000) {
+//					_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_ROLL;
+//				}
+//				break;
+//
+//			case vehicle_status_s::FLIP_STATE_ROLL:
+//				if (counter >= 600000) {
+//					_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_RECOVER;
+//				}
+//				break;
+//
+//			case vehicle_status_s::FLIP_STATE_RECOVER:
+//				if (counter >= 800000) {
+//					_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_FINISHED;
+//				}
+//				break;
+//
+//			case vehicle_status_s::FLIP_STATE_FINISHED:
+//				if (counter > 1000000) {
+//					_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_DISABLED;
+//				}
+//				break;
+//			}
 
-			// disable state
+//			_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_FINISHED;
 
-			// start state
+			if (_vehicle_status_pub != nullptr) {
+//				warn("Publishing");
+				orb_publish(ORB_ID(vehicle_status), _vehicle_status_pub, &_vehicle_status);
+			} else {
+//				warn("Not publishing");
+				_vehicle_status_pub = orb_advertise(ORB_ID(vehicle_status), &_vehicle_status);
+			}
 
-			// roll state
-
-			// recover state
-
-			// finished state
 		}
+
 	}
 
 }
@@ -245,6 +293,10 @@ int flip_state_switch_main(int argc, char *argv[])
 			warnx("not running");
 			return 1;
 		}
+	}
+
+	if (!strcmp(argv[1], "state")) {
+		flip_state_switch::g_control->print_state();
 	}
 
 	warnx("unrecognized command");
