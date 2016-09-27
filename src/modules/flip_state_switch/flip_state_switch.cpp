@@ -57,6 +57,11 @@ public:
 	 */
 	void print_state();
 
+	/**
+	 * little function to manually change flip state
+	 */
+	void change_state(int state);
+
 private:
 
 	bool 	_task_should_exit;		/**< if true, task_main() should exit */
@@ -111,6 +116,70 @@ FlipStateSwitch::~FlipStateSwitch()
 void FlipStateSwitch::print_state()
 {
 	warnx("Flip state: %d", _vehicle_status.flip_state);
+}
+
+void FlipStateSwitch::change_state(int state)
+{
+	bool flip_state_changed = false;
+	switch (state) {
+	case vehicle_status_s::FLIP_STATE_DISABLED:
+		if (_vehicle_status.flip_state != vehicle_status_s::FLIP_STATE_DISABLED)
+		{
+			_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_DISABLED;
+			flip_state_changed = true;
+			break;
+		} else {
+			break;
+		}
+
+	case vehicle_status_s::FLIP_STATE_START:
+		if (_vehicle_status.flip_state != vehicle_status_s::FLIP_STATE_START)
+		{
+			_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_START;
+			flip_state_changed = true;
+			break;
+		} else {
+			break;
+		}
+
+	case vehicle_status_s::FLIP_STATE_ROLL:
+		if (_vehicle_status.flip_state != vehicle_status_s::FLIP_STATE_ROLL)
+		{
+			_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_ROLL;
+			flip_state_changed = true;
+			break;
+		} else {
+			break;
+		}
+
+	case vehicle_status_s::FLIP_STATE_RECOVER:
+		if (_vehicle_status.flip_state != vehicle_status_s::FLIP_STATE_RECOVER)
+		{
+			_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_RECOVER;
+			flip_state_changed = true;
+			break;
+		} else {
+			break;
+		}
+
+	case vehicle_status_s::FLIP_STATE_FINISHED:
+		if (_vehicle_status.flip_state != vehicle_status_s::FLIP_STATE_FINISHED)
+		{
+			_vehicle_status.flip_state = vehicle_status_s::FLIP_STATE_FINISHED;
+			flip_state_changed = true;
+			break;
+		} else {
+			break;
+		}
+
+	}
+
+	if (flip_state_changed)
+	{
+		warnx("Flip state is changed, new mode: %d", _vehicle_status.flip_state);
+	} else {
+		warnx("FLip state is not changed.");
+	}
 }
 
 void FlipStateSwitch::task_main_trampoline(int argc, char *argv[])
@@ -267,6 +336,28 @@ int flip_state_switch_main(int argc, char *argv[])
 	 */
 	if (!strcmp(argv[1], "state")) {
 		flip_state_switch::g_control->print_state();
+		return 0;
+	}
+
+	/*
+	 * change flip state function
+	 */
+	if (!strcmp(argv[1], "change")) {
+		if (argc > 2) {
+			if (!strcmp(argv[2], "disabled")) {
+				flip_state_switch::g_control->change_state(vehicle_status_s::FLIP_STATE_DISABLED);
+			} else if (!strcmp(argv[2], "start")) {
+				flip_state_switch::g_control->change_state(vehicle_status_s::FLIP_STATE_START);
+			} else if (!strcmp(argv[2], "roll")) {
+				flip_state_switch::g_control->change_state(vehicle_status_s::FLIP_STATE_ROLL);
+			} else if (!strcmp(argv[2], "recover")) {
+				flip_state_switch::g_control->change_state(vehicle_status_s::FLIP_STATE_RECOVER);
+			} else if (!strcmp(argv[2], "finished")) {
+				flip_state_switch::g_control->change_state(vehicle_status_s::FLIP_STATE_FINISHED);
+			} else {
+				warnx("missing argument");
+			}
+		}
 		return 0;
 	}
 
