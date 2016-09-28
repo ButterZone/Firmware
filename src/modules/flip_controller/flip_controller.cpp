@@ -26,3 +26,36 @@
 
 
 extern "C" __EXPORT int flip_controller(int argc, char *argv[]);
+
+class flip_controller
+{
+public:
+	/**
+	 * Constructor
+	 */
+	FlipController();
+
+	/**
+	 * Destructor, also kills the main task
+	 */
+	~FlipController();
+
+	/**
+	 * Start the flip state switch task
+	 *
+	 * @return OK on success
+	 */
+	int start();
+
+private:
+
+	/**
+	 * Shim for calling task_main from task_create
+	 */
+	static void task_main_trampoline(int argc, char *argv[]);
+
+	/**
+	 * Main attitude controle task
+	 */
+	void 		task_main();
+};
