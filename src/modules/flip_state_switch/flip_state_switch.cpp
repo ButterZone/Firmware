@@ -80,6 +80,11 @@ private:
 	 */
 	static void task_main_trampoline(int argc, char *argv[]);
 
+	/**
+	 * set vehicle status
+	 */
+	int 		vehicle_status_publish();
+
 
 	/**
 	 * Main attitude control task
@@ -116,6 +121,26 @@ FlipStateSwitch::~FlipStateSwitch()
 void FlipStateSwitch::print_state()
 {
 	warnx("Flip state: %d", _vehicle_status.flip_state);
+}
+
+int FlipStateSwitch::vehicle_status_publish()
+{
+	_vehicle_status.timestamp = hrt_absolute_time();
+
+	// publish vehicle status topic only once available
+	if (_vehicle_status_pub != nullptr) {
+		warnx("before publish is %d", _vehicle_status.flip_state);
+		return orb_publish(ORB_ID(vehicle_status), _vehicle_status_pub, &_vehicle_status);
+		warnx("after publish is %d", _vehicle_status.flip_state);
+	} else {
+		_vehicle_status_pub = orb_advertise(ORB_ID(vehicle_status),&_vehicle_status);
+
+		if (_vehicle_status_pub != nullptr) {
+			return OK;
+		} else {
+			return -1;
+		}
+	}
 }
 
 void FlipStateSwitch::change_state(int state)
@@ -176,9 +201,7 @@ void FlipStateSwitch::change_state(int state)
 
 	if (flip_state_changed)
 	{
-		warnx("Flip state is changed, new mode: %d", _vehicle_status.flip_state);
-	} else {
-		warnx("FLip state is not changed.");
+		vehicle_status_publish();
 	}
 }
 
@@ -245,11 +268,13 @@ void FlipStateSwitch::task_main()
 
 
 			/* switch cases between flip states */
+			_vehicle_status.timestamp = hrt_absolute_time();
 
 			if (_vehicle_status_pub != nullptr) {
 				orb_publish(ORB_ID(vehicle_status), _vehicle_status_pub, &_vehicle_status);
 			} else {
 				_vehicle_status_pub = orb_advertise(ORB_ID(vehicle_status), &_vehicle_status);
+
 			}
 
 		}

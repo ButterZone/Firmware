@@ -902,7 +902,7 @@ MulticopterAttitudeControl::task_main()
 			if (_v_control_mode.flag_control_attitude_enabled) {
 
 				if (_ts_opt_recovery == nullptr) {
-					// the  tailsitter recovery instance has not been created, thus, the vehicle
+					// the tailsitter recovery instance has not been created, thus, the vehicle
 					// is not a tailsitter, do normal attitude control
 					control_attitude(dt);
 
