@@ -80,6 +80,12 @@ FlipController::~FlipController()
 	flip_controller::g_flip = nullptr;
 }
 
+void FlipController::task_main_trampoline(int argc, char *argv[])
+{
+	flip_controller::g_flip->task_main();
+}
+
+
 int FlipController::start()
 {
 	ASSERT(_flip_task == -1);
