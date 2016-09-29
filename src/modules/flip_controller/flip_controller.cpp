@@ -49,6 +49,7 @@ public:
 
 private:
 	bool 		_task_should_exit; 		/**< if true, main task should exit */
+	int 		_flip_task;				/**< task handle */
 
 	/**
 	 * Shim for calling task_main from task_create
@@ -56,7 +57,7 @@ private:
 	static void task_main_trampoline(int argc, char *argv[]);
 
 	/**
-	 * Main attitude controle task
+	 * Main attitude control task
 	 */
 	void 		task_main();
 };
@@ -67,7 +68,8 @@ FlipController *g_flip;
 }
 
 FlipController::FlipController() :
-		_task_should_exit(false)
+		_task_should_exit(false),
+		_flip_task(-1)
 {
 
 }
@@ -76,6 +78,27 @@ FlipController::~FlipController()
 {
 	_task_should_exit = true;
 	flip_controller::g_flip = nullptr;
+}
+
+int FlipController::start()
+{
+	ASSERT(_flip_task == -1);
+
+	/*start the task */
+	_flip_task = px4_task_spawn_cmd("flip_controller",
+									SCHED_DEFAULT,
+									SCHED_PRIORITY_MAX - 5,
+									1500,
+									(px4_main_t)&FlipController::task_main_trampoline,
+									nullptr);
+
+	if (_flip_task < 0) {
+		warn("task start failed");
+		return -errno;
+	}
+
+	return OK;
+
 }
 
 int flip_controller_main(int argc, char *argv[])
