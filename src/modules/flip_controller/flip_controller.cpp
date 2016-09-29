@@ -85,6 +85,10 @@ void FlipController::task_main_trampoline(int argc, char *argv[])
 	flip_controller::g_flip->task_main();
 }
 
+void FlipController::task_main()
+{
+	warnx("hello");
+}
 
 int FlipController::start()
 {
