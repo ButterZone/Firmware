@@ -78,3 +78,63 @@ FlipController::~FlipController()
 	flip_controller::g_flip = nullptr;
 }
 
+int flip_controller_main(int argc, char *argv[])
+{
+	/* warn if no input argument */
+	if (argc < 2) {
+		warnx("usage: flip_controller {start|stop|status}");
+		return 1;
+	}
+
+	/* start flip_controller manually */
+	if (!strcmp(argv[1],"start")) {
+
+		if (flip_controller::g_flip != nullptr) {
+			warnx("already running");
+			return 1;
+		}
+
+		flip_controller::g_flip == new FlipController;
+
+		if (flip_controller::g_flip == nullptr) {
+			warnx("allocation failed");
+			return 1;
+		}
+
+		if (OK != flip_controller::g_flip->start()) {
+			delete flip_controller::g_flip;
+			flip_controller::g_flip = nullptr;
+			warnx("start failed");
+			return 1;
+		}
+	}
+
+	/* stop flip_controller manually */
+	if (!strcmp(argv[1], "stop")) {
+		if (flip_controller::g_flip == nullptr) {
+			warnx("not running");
+			return 1;
+		}
+
+		delete flip_controller::g_flip;
+		flip_controller::g_flip = nullptr;
+		return 0;
+	}
+
+	/* return running status of the application */
+	if (!strcmp(argv[1], "status")) {
+		if (flip_controller::g_flip) {
+			warnx("running");
+			return 0;
+		} else {
+			warnx("not running");
+			return 1;
+		}
+	}
+
+
+	/* if argument is not in one of the if statement */
+	warnx("unrecognized command");
+
+	return 0;
+}
