@@ -18,27 +18,27 @@
 #include <uORB/topics/vehicle_control_mode.h>
 #include <uORB/topics/vehicle_status.h>
 /*
- * flip_controller.cpp
+ * flip_control.cpp
  *
  *  Created on: 28Sep.,2016
  *      Author: Zihao
  */
 
 
-extern "C" __EXPORT int flip_controller(int argc, char *argv[]);
+extern "C" __EXPORT int flip_control(int argc, char *argv[]);
 
-class FlipController
+class FlipControl
 {
 public:
 	/**
 	 * Constructor
 	 */
-	FlipController();
+	FlipControl();
 
 	/**
 	 * Destructor, also kills the main task
 	 */
-	~FlipController();
+	~FlipControl();
 
 	/**
 	 * Start the flip state switch task
@@ -70,44 +70,44 @@ private:
 	void 		task_main();
 };
 
-namespace flip_controller
+namespace flip_control
 {
-FlipController *g_flip;
+FlipControl *g_flip;
 }
 
-FlipController::FlipController() :
+FlipControl::FlipControl() :
 		_task_should_exit(false),
 		_flip_task(-1)
 {
 
 }
 
-FlipController::~FlipController()
+FlipControl::~FlipControl()
 {
 	_task_should_exit = true;
-	flip_controller::g_flip = nullptr;
+	flip_control::g_flip = nullptr;
 }
 
-void FlipController::task_main_trampoline(int argc, char *argv[])
+void FlipControl::task_main_trampoline(int argc, char *argv[])
 {
-	flip_controller::g_flip->task_main();
+	flip_control::g_flip->task_main();
 }
 
-void FlipController::task_main()
+void FlipControl::task_main()
 {
 	warnx("hello");
 }
 
-int FlipController::start()
+int FlipControl::start()
 {
 	ASSERT(_flip_task == -1);
 
 	/*start the task */
-	_flip_task = px4_task_spawn_cmd("flip_controller",
+	_flip_task = px4_task_spawn_cmd("flip_control",
 									SCHED_DEFAULT,
 									SCHED_PRIORITY_MAX - 5,
 									1500,
-									(px4_main_t)&FlipController::task_main_trampoline,
+									(px4_main_t)&FlipControl::task_main_trampoline,
 									nullptr);
 
 	if (_flip_task < 0) {
@@ -119,52 +119,52 @@ int FlipController::start()
 
 }
 
-int flip_controller_main(int argc, char *argv[])
+int flip_control_main(int argc, char *argv[])
 {
 	/* warn if no input argument */
 	if (argc < 2) {
-		warnx("usage: flip_controller {start|stop|status}");
+		warnx("usage: flip_control {start|stop|status}");
 		return 1;
 	}
 
-	/* start flip_controller manually */
+	/* start flip_control manually */
 	if (!strcmp(argv[1],"start")) {
 
-		if (flip_controller::g_flip != nullptr) {
+		if (flip_control::g_flip != nullptr) {
 			warnx("already running");
 			return 1;
 		}
 
-		flip_controller::g_flip == new FlipController;
+		flip_control::g_flip == new FlipControl;
 
-		if (flip_controller::g_flip == nullptr) {
+		if (flip_control::g_flip == nullptr) {
 			warnx("allocation failed");
 			return 1;
 		}
 
-		if (OK != flip_controller::g_flip->start()) {
-			delete flip_controller::g_flip;
-			flip_controller::g_flip = nullptr;
+		if (OK != flip_control::g_flip->start()) {
+			delete flip_control::g_flip;
+			flip_control::g_flip = nullptr;
 			warnx("start failed");
 			return 1;
 		}
 	}
 
-	/* stop flip_controller manually */
+	/* stop flip_control manually */
 	if (!strcmp(argv[1], "stop")) {
-		if (flip_controller::g_flip == nullptr) {
+		if (flip_control::g_flip == nullptr) {
 			warnx("not running");
 			return 1;
 		}
 
-		delete flip_controller::g_flip;
-		flip_controller::g_flip = nullptr;
+		delete flip_control::g_flip;
+		flip_control::g_flip = nullptr;
 		return 0;
 	}
 
 	/* return running status of the application */
 	if (!strcmp(argv[1], "status")) {
-		if (flip_controller::g_flip) {
+		if (flip_control::g_flip) {
 			warnx("running");
 			return 0;
 		} else {
