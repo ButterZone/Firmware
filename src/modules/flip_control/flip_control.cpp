@@ -25,7 +25,7 @@
  */
 
 
-extern "C" __EXPORT int flip_control(int argc, char *argv[]);
+extern "C" __EXPORT int flip_control_main(int argc, char *argv[]);
 
 class FlipControl
 {
@@ -136,7 +136,7 @@ int flip_control_main(int argc, char *argv[])
 			return 1;
 		}
 
-		flip_control::g_flip == new FlipControl;
+		flip_control::g_flip = new FlipControl;
 
 		if (flip_control::g_flip == nullptr) {
 			warnx("allocation failed");
@@ -149,6 +149,8 @@ int flip_control_main(int argc, char *argv[])
 			warnx("start failed");
 			return 1;
 		}
+
+		return 0;
 	}
 
 	/* stop flip_control manually */
