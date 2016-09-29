@@ -27,7 +27,7 @@
 
 extern "C" __EXPORT int flip_controller(int argc, char *argv[]);
 
-class flip_controller
+class FlipController
 {
 public:
 	/**
@@ -48,6 +48,7 @@ public:
 	int start();
 
 private:
+	bool 		_task_should_exit; 		/**< if true, main task should exit */
 
 	/**
 	 * Shim for calling task_main from task_create
@@ -59,3 +60,21 @@ private:
 	 */
 	void 		task_main();
 };
+
+namespace flip_controller
+{
+FlipController *g_flip;
+}
+
+FlipController::FlipController() :
+		_task_should_exit(false)
+{
+
+}
+
+FlipController::~FlipController()
+{
+	_task_should_exit = true;
+	flip_controller::g_flip = nullptr;
+}
+
