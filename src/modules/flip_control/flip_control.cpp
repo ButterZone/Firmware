@@ -190,6 +190,7 @@ int flip_control_main(int argc, char *argv[])
 	if (!strcmp(argv[1], "state")) {
 		flip_control::g_flip->print_state();
 
+		return 0;
 	}
 
 
