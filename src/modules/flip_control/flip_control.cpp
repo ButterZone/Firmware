@@ -77,7 +77,8 @@ FlipControl *g_flip;
 
 FlipControl::FlipControl() :
 		_task_should_exit(false),
-		_flip_task(-1)
+		_flip_task(-1),
+		_flip_state(FLIP_STATE_DISABLED)
 {
 
 }
