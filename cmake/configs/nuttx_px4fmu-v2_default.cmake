@@ -109,6 +109,7 @@ set(config_module_list
 	modules/mc_att_control
 	modules/mc_pos_control
 	modules/vtol_att_control
+	modules/flip_control
 
 	#
 	# Logging

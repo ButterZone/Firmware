@@ -33,6 +33,8 @@ mc_att_control start
 
 mc_pos_control start
 
+flip_control start
+
 #
 # Start Land Detector
 #
