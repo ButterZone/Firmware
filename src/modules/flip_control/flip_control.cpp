@@ -47,6 +47,11 @@ public:
 	 */
 	int start();
 
+	/**
+	 * little function to print current flip state
+	 */
+	void print_state();
+
 private:
 	bool 		_task_should_exit; 		/**< if true, main task should exit */
 	int 		_flip_task;				/**< task handle */
@@ -87,6 +92,11 @@ FlipControl::~FlipControl()
 {
 	_task_should_exit = true;
 	flip_control::g_flip = nullptr;
+}
+
+void FlipControl::print_state()
+{
+	warnx("Current flip state is %d", _flip_state);
 }
 
 void FlipControl::task_main_trampoline(int argc, char *argv[])
@@ -172,6 +182,12 @@ int flip_control_main(int argc, char *argv[])
 			warnx("not running");
 			return 1;
 		}
+	}
+
+	/* print current flip_state */
+	if (!strcmp(argv[1], "state")) {
+		flip_control::g_flip->print_state();
+
 	}
 
 
