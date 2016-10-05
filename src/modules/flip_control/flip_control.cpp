@@ -111,6 +111,16 @@ void FlipControl::print_state()
 	warnx("Current flip state is %d", _flip_state);
 }
 
+void FlipControl::handle_command(struct vehicle_command_s *cmd)
+{
+	switch (cmd->command) {
+	case vehicle_command_s::VEHICLE_CMD_FLIP_START:
+
+		warnx("flip start received");
+		break;
+	}
+}
+
 void FlipControl::task_main_trampoline(int argc, char *argv[])
 {
 	flip_control::g_flip->task_main();
