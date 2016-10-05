@@ -116,12 +116,16 @@ void FlipControl::handle_command(struct vehicle_command_s *cmd)
 	switch (cmd->command) {
 	case vehicle_command_s::VEHICLE_CMD_FLIP_START:
 
-		warnx("flip start received");
+		warnx("Flip initiated");
+
+		_flip_state = FLIP_STATE_START;
 		break;
 
-	case vehicle_command_s::VEHICLE_CMD_CUSTOM_0:
+	case vehicle_command_s::VEHICLE_CMD_FLIP_TERMINATE:
 
-		warnx("message 0 received");
+		warnx("Flip terminated");
+
+		_flip_state = FLIP_STATE_FINISHED;
 		break;
 	}
 }
