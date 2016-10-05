@@ -60,13 +60,13 @@ private:
 	int 		_command_sub;
 	struct vehicle_command_s _command;
 
-//	enum FLIP_STATE {
-//		FLIP_STATE_DISABLED = 0,
-//		FLIP_STATE_START = 1,
-//		FLIP_STATE_ROLL = 2,
-//		FLIP_STATE_RECOVER = 3,
-//		FLIP_STATE_FINISHED = 4
-//	}_flip_state;
+	enum FLIP_STATE {
+		FLIP_STATE_DISABLED = 0,
+		FLIP_STATE_START = 1,
+		FLIP_STATE_ROLL = 2,
+		FLIP_STATE_RECOVER = 3,
+		FLIP_STATE_FINISHED = 4
+	}_flip_state;
 
 	/**
 	 * Shim for calling task_main from task_create
@@ -87,7 +87,7 @@ FlipControl *g_flip;
 FlipControl::FlipControl() :
 		_task_should_exit(false),
 		_flip_task(-1),
-//		_flip_state(FLIP_STATE_DISABLED),
+		_flip_state(FLIP_STATE_DISABLED),
 		_command_sub(-1),
 		_command {}
 {
