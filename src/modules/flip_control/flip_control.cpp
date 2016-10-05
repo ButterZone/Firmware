@@ -83,7 +83,7 @@ FlipControl *g_flip;
 FlipControl::FlipControl() :
 		_task_should_exit(false),
 		_flip_task(-1),
-		_flip_state(FLIP_STATE_DISABLED)
+		_flip_state(FLIP_STATE_DISABLED),
 {
 
 }
@@ -96,7 +96,6 @@ FlipControl::~FlipControl()
 
 void FlipControl::print_state()
 {
-
 }
 
 void FlipControl::task_main_trampoline(int argc, char *argv[])
@@ -106,7 +105,6 @@ void FlipControl::task_main_trampoline(int argc, char *argv[])
 
 void FlipControl::task_main()
 {
-
 }
 
 int FlipControl::start()
