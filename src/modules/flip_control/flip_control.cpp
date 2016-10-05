@@ -12,6 +12,7 @@
 #include <drivers/drv_hrt.h>
 #include <arch/board/board.h>
 #include <uORB/uORB.h>
+#include <uORB/topics/vehicle_command.h>
 #include <uORB/topics/vehicle_attitude_setpoint.h>
 #include <uORB/topics/vehicle_rates_setpoint.h>
 #include <uORB/topics/control_state.h>
@@ -56,13 +57,16 @@ private:
 	bool 		_task_should_exit; 		/**< if true, main task should exit */
 	int 		_flip_task;				/**< task handle */
 
-	enum FLIP_STATE {
-		FLIP_STATE_DISABLED = 0,
-		FLIP_STATE_START = 1,
-		FLIP_STATE_ROLL = 2,
-		FLIP_STATE_RECOVER = 3,
-		FLIP_STATE_FINISHED = 4
-	}_flip_state;
+	int 		_command_sub;
+	struct vehicle_command_s _command;
+
+//	enum FLIP_STATE {
+//		FLIP_STATE_DISABLED = 0,
+//		FLIP_STATE_START = 1,
+//		FLIP_STATE_ROLL = 2,
+//		FLIP_STATE_RECOVER = 3,
+//		FLIP_STATE_FINISHED = 4
+//	}_flip_state;
 
 	/**
 	 * Shim for calling task_main from task_create
@@ -83,7 +87,9 @@ FlipControl *g_flip;
 FlipControl::FlipControl() :
 		_task_should_exit(false),
 		_flip_task(-1),
-		_flip_state(FLIP_STATE_DISABLED)
+//		_flip_state(FLIP_STATE_DISABLED),
+		_command_sub(-1),
+		_command {}
 {
 
 }
@@ -96,7 +102,7 @@ FlipControl::~FlipControl()
 
 void FlipControl::print_state()
 {
-	warnx("Current flip state is %d", _flip_state);
+	warnx("Current flip state is s");
 }
 
 void FlipControl::task_main_trampoline(int argc, char *argv[])
@@ -107,6 +113,45 @@ void FlipControl::task_main_trampoline(int argc, char *argv[])
 void FlipControl::task_main()
 {
 	warnx("hello");
+
+	_command_sub = orb_subscribe(ORB_ID(vehicle_command));
+
+	struct pollfd fds[1];
+
+	fds[0].fd = _command_sub;
+	fds[0].events = POLLIN;
+	while (!_task_should_exit) {
+		int pret = poll(&fds[0], (sizeof(fds) / sizeof(fds[0])), 50);
+
+		if (pret < 0) {
+			warn("poll error %d %d", pret, errno);
+			continue;
+		}
+
+		if (fds[0].revents & POLLIN) {
+			orb_copy(ORB_ID(vehicle_command), _command_sub, &_command);
+
+			struct vehicle_command_s *cmd = &_command;
+
+			warnx("command: %d", cmd->command);
+
+			switch(cmd->command) {
+
+			case vehicle_command_s::VEHICLE_CMD_PAYLOAD_PREPARE_DEPLOY:
+				warnx("message 30001 received");
+				break;
+
+
+			case vehicle_command_s::VEHICLE_CMD_CUSTOM_0:
+				warnx("message 0 received");
+				break;
+			}
+
+
+		}
+
+
+	}
 }
 
 int FlipControl::start()
