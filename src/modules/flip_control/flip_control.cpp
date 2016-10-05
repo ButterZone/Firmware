@@ -118,6 +118,11 @@ void FlipControl::handle_command(struct vehicle_command_s *cmd)
 
 		warnx("flip start received");
 		break;
+
+	case vehicle_command_s::VEHICLE_CMD_CUSTOM_0:
+
+		warnx("message 0 received");
+		break;
 	}
 }
 
@@ -182,19 +187,7 @@ void FlipControl::task_main()
 			 */
 			orb_copy(ORB_ID(vehicle_command), _command_sub, &_command);
 
-			struct vehicle_command_s *cmd = &_command;
-
-			switch(cmd->command) {
-
-			case vehicle_command_s::VEHICLE_CMD_PAYLOAD_PREPARE_DEPLOY:
-				warnx("message 30001 received");
-				break;
-
-
-			case vehicle_command_s::VEHICLE_CMD_CUSTOM_0:
-				warnx("message 0 received");
-				break;
-			}
+			handle_command(&_command);
 
 
 		}
