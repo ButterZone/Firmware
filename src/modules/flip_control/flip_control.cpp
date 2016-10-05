@@ -49,6 +49,12 @@ public:
 	int start();
 
 	/**
+	 * This function handles the Mavlink command long messages
+	 * It will execute appropriate actions according to input
+	 */
+	void handle_command(struct vehicle_command_s *cmd);
+
+	/**
 	 * little function to print current flip state
 	 */
 	void print_state();
