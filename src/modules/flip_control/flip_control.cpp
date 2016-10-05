@@ -56,17 +56,17 @@ public:
 private:
 	bool 		_task_should_exit; 		/**< if true, main task should exit */
 	int 		_flip_task;				/**< task handle */
+	enum FLIP_STATE {
+			FLIP_STATE_DISABLED = 0,
+			FLIP_STATE_START = 1,
+			FLIP_STATE_ROLL = 2,
+			FLIP_STATE_RECOVER = 3,
+			FLIP_STATE_FINISHED = 4
+		}_flip_state;					/**< flip state */
+
 
 	int 		_command_sub;
 	struct vehicle_command_s _command;
-
-	enum FLIP_STATE {
-		FLIP_STATE_DISABLED = 0,
-		FLIP_STATE_START = 1,
-		FLIP_STATE_ROLL = 2,
-		FLIP_STATE_RECOVER = 3,
-		FLIP_STATE_FINISHED = 4
-	}_flip_state;
 
 	/**
 	 * Shim for calling task_main from task_create
@@ -102,7 +102,7 @@ FlipControl::~FlipControl()
 
 void FlipControl::print_state()
 {
-	warnx("Current flip state is s");
+	warnx("Current flip state is %d", _flip_state);
 }
 
 void FlipControl::task_main_trampoline(int argc, char *argv[])
