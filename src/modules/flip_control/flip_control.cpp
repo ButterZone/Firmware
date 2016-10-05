@@ -112,6 +112,9 @@ void FlipControl::task_main_trampoline(int argc, char *argv[])
 
 void FlipControl::task_main()
 {
+	/* make sure slip_state is disabled at initialization */
+	_flip_state = FLIP_STATE_DISABLED;
+
 	int poll_interval = 100; // listen to the topic every x millisecond
 
 	/* subscribe to vehicle command topic */
