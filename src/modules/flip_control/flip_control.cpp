@@ -96,7 +96,7 @@ FlipControl::~FlipControl()
 
 void FlipControl::print_state()
 {
-	warnx("Current flip state is %d", _flip_state);
+
 }
 
 void FlipControl::task_main_trampoline(int argc, char *argv[])
@@ -106,7 +106,7 @@ void FlipControl::task_main_trampoline(int argc, char *argv[])
 
 void FlipControl::task_main()
 {
-	warnx("hello");
+
 }
 
 int FlipControl::start()
