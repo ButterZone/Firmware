@@ -112,28 +112,58 @@ void FlipControl::task_main_trampoline(int argc, char *argv[])
 
 void FlipControl::task_main()
 {
-	warnx("hello");
+	int poll_interval = 100; // listen to the topic every x millisecond
 
+	/* subscribe to vehicle command topic */
 	_command_sub = orb_subscribe(ORB_ID(vehicle_command));
 
-	struct pollfd fds[1];
+	/*
+	 * declare file descriptor structure, # in the [] means the
+	 * # of topics, here is 1 since we are only
+	 * polling vehicle_command
+	 */
+	px4_pollfd_struct_t fds[1];
 
+	/*
+	 * initialize file descriptor to listen to vehicle_command
+	 */
 	fds[0].fd = _command_sub;
 	fds[0].events = POLLIN;
-	while (!_task_should_exit) {
-		int pret = poll(&fds[0], (sizeof(fds) / sizeof(fds[0])), 50);
 
+	/* start main slow loop */
+	while (!_task_should_exit) {
+
+		/* set the poll target, number of file descriptor, and poll interval */
+		int pret = px4_poll(&fds[0], (sizeof(fds) / sizeof(fds[0])), poll_interval);
+
+		/*
+		 * this means no information is coming from the topic in the set interval
+		 * skip loop
+		 */
+		if (pret == 0) {
+			continue;
+		}
+
+		/*
+		 * this means some error happened, I don't know what to do
+		 * skip loop
+		 */
 		if (pret < 0) {
 			warn("poll error %d %d", pret, errno);
 			continue;
 		}
 
+		/*
+		 * if everything goes well, copy the command into our variable
+		 * and handle command
+		 */
 		if (fds[0].revents & POLLIN) {
+			/*
+			 * copy command structure from the topic to our local structure
+			 */
 			orb_copy(ORB_ID(vehicle_command), _command_sub, &_command);
 
 			struct vehicle_command_s *cmd = &_command;
-
-			warnx("command: %d", cmd->command);
 
 			switch(cmd->command) {
 
