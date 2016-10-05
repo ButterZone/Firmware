@@ -88,11 +88,8 @@ FlipControl::FlipControl() :
 		_task_should_exit(false),
 		_flip_task(-1),
 		_flip_state(FLIP_STATE_DISABLED),
-<<<<<<< HEAD
-=======
 		_command_sub(-1),
 		_command {}
->>>>>>> flip_controller_experiment
 {
 
 }
@@ -105,10 +102,7 @@ FlipControl::~FlipControl()
 
 void FlipControl::print_state()
 {
-<<<<<<< HEAD
-=======
 	warnx("Current flip state is s");
->>>>>>> flip_controller_experiment
 }
 
 void FlipControl::task_main_trampoline(int argc, char *argv[])
@@ -118,8 +112,6 @@ void FlipControl::task_main_trampoline(int argc, char *argv[])
 
 void FlipControl::task_main()
 {
-<<<<<<< HEAD
-=======
 	int poll_interval = 100; // listen to the topic every x millisecond
 
 	/* subscribe to vehicle command topic */
@@ -190,7 +182,6 @@ void FlipControl::task_main()
 
 
 	}
->>>>>>> flip_controller_experiment
 }
 
 int FlipControl::start()
