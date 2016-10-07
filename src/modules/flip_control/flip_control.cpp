@@ -59,6 +59,11 @@ public:
 	 */
 	void print_state();
 
+	/**
+	 * check for changes in vehicle control mode
+	 */
+	void vehicle_control_mode_poll();
+
 private:
 	bool 		_task_should_exit; 		/**< if true, main task should exit */
 	int 		_flip_task;				/**< task handle */
@@ -70,9 +75,15 @@ private:
 			FLIP_STATE_FINISHED = 4
 		}_flip_state;					/**< flip state */
 
-
+	/* subscriptions */
 	int 		_command_sub;
-	struct vehicle_command_s _command;
+	int 		_vehicle_control_mode_sub;
+
+	/* publications */
+	orb_advert_t 	_vehicle_control_mode_pub;
+
+	struct vehicle_command_s 		_command;				/**< vehicle commands */
+	struct vehicle_control_mode_s 	_vehicle_control_mode; 	/**< vehicle control mode */
 
 	/**
 	 * Shim for calling task_main from task_create
@@ -94,10 +105,15 @@ FlipControl::FlipControl() :
 		_task_should_exit(false),
 		_flip_task(-1),
 		_flip_state(FLIP_STATE_DISABLED),
-		_command_sub(-1),
-		_command {}
-{
 
+		_command_sub(-1),
+		_vehicle_control_mode_sub(-1),
+
+		_vehicle_control_mode_pub(nullptr)
+
+{
+	memset(&_command, 0, sizeof(_command));
+	memset(&_vehicle_control_mode, 0, sizeof(_vehicle_control_mode));
 }
 
 FlipControl::~FlipControl()
@@ -130,6 +146,18 @@ void FlipControl::handle_command(struct vehicle_command_s *cmd)
 	}
 }
 
+void FlipControl::vehicle_control_mode_poll()
+{
+	bool updated;
+
+	/* check if vehicle control mode has changed */
+	orb_check(_vehicle_control_mode_sub, &updated);
+
+	if (updated) {
+		orb_copy(ORB_ID(vehicle_control_mode), _vehicle_control_mode_sub, &_vehicle_control_mode);
+	}
+}
+
 void FlipControl::task_main_trampoline(int argc, char *argv[])
 {
 	flip_control::g_flip->task_main();
@@ -147,6 +175,8 @@ void FlipControl::task_main()
 
 	/* subscribe to vehicle command topic */
 	_command_sub = orb_subscribe(ORB_ID(vehicle_command));
+	/* subscribe to vehicle control mode topic */
+	_vehicle_control_mode_sub = orb_subscribe(ORB_ID(vehicle_control_mode));
 
 	/*
 	 * declare file descriptor structure, # in the [] means the
@@ -198,6 +228,12 @@ void FlipControl::task_main()
 		}
 
 		/*
+		 * check for updates in other topics
+		 */
+		vehicle_control_mode_poll();
+
+
+		/*
 		 * switch to faster update during the flip
 		 */
 		while (_flip_state > FLIP_STATE_DISABLED){
@@ -220,7 +256,11 @@ void FlipControl::task_main()
 				 * 400 degree/second roll to 45 degrees
 				 */
 
-				//publish to vehicle rates setpoint
+				// disable _v_control_mode.flag_control_manual_enabled
+
+				// disable _v_control_mode.flag_conttrol_attitude_enabled
+
+				// publish to vehicle rates setpoint
 
 
 				break;
