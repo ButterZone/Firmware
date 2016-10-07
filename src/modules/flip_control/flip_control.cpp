@@ -219,6 +219,10 @@ void FlipControl::task_main()
 				/*
 				 * 400 degree/second roll to 45 degrees
 				 */
+
+				//publish to vehicle rates setpoint
+
+
 				break;
 
 			case FLIP_STATE_ROLL:
