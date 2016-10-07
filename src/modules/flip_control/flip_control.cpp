@@ -256,9 +256,11 @@ void FlipControl::task_main()
 				 * 400 degree/second roll to 45 degrees
 				 */
 
+				orb_copy(ORB_ID(vehicle_control_mode), _vehicle_control_mode_sub, &_vehicle_control_mode);
 				// disable _v_control_mode.flag_control_manual_enabled
 
 				// disable _v_control_mode.flag_conttrol_attitude_enabled
+				_vehicle_control_mode.flag_control_attitude_enabled = false;
 
 				// publish to vehicle rates setpoint
 
