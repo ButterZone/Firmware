@@ -178,6 +178,9 @@ void FlipControl::task_main()
 	/* subscribe to vehicle control mode topic */
 	_vehicle_control_mode_sub = orb_subscribe(ORB_ID(vehicle_control_mode));
 
+	/* advertise control mode topic */
+	_vehicle_control_mode_pub = orb_advertise(ORB_ID(vehicle_control_mode), &_vehicle_control_mode);
+
 	/*
 	 * declare file descriptor structure, # in the [] means the
 	 * # of topics, here is 1 since we are only
@@ -258,11 +261,13 @@ void FlipControl::task_main()
 
 				orb_copy(ORB_ID(vehicle_control_mode), _vehicle_control_mode_sub, &_vehicle_control_mode);
 				// disable _v_control_mode.flag_control_manual_enabled
+//				_vehicle_control_mode.flag_control_manual_enabled = false;
 
 				// disable _v_control_mode.flag_conttrol_attitude_enabled
 				_vehicle_control_mode.flag_control_attitude_enabled = false;
 
 				// publish to vehicle rates setpoint
+				orb_publish(ORB_ID(vehicle_control_mode), _vehicle_control_mode_pub, &_vehicle_control_mode);
 
 
 				break;
