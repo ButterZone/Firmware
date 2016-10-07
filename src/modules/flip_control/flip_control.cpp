@@ -140,6 +140,9 @@ void FlipControl::task_main()
 	/* make sure slip_state is disabled at initialization */
 	_flip_state = FLIP_STATE_DISABLED;
 
+	// use this to check if a topic is updated
+	bool updated = false;
+
 	int poll_interval = 100; // listen to the topic every x millisecond
 
 	/* subscribe to vehicle command topic */
@@ -193,6 +196,51 @@ void FlipControl::task_main()
 
 			handle_command(&_command);
 		}
+
+		/*
+		 * switch to faster update during the flip
+		 */
+		while (_flip_state > FLIP_STATE_DISABLED){
+
+			// update commands
+			orb_check(_command_sub, &updated);
+			if (updated) {
+				orb_copy(ORB_ID(vehicle_command), _command_sub, &_command);
+				handle_command(&_command);
+			}
+
+			// decide what to do based on current flip_state
+			switch (_flip_state) {
+			case FLIP_STATE_DISABLED:
+				// do nothing
+				break;
+
+			case FLIP_STATE_START:
+				/*
+				 * 400 degree/second roll to 45 degrees
+				 */
+				break;
+
+			case FLIP_STATE_ROLL:
+				/*
+				 * 400 degree/second roll to 90 degrees
+				 */
+				break;
+
+			case FLIP_STATE_RECOVER:
+				/*
+				 * level the vehicle
+				 */
+				break;
+
+			case FLIP_STATE_FINISHED:
+				/*
+				 * go back to disabled state
+				 */
+				break;
+
+			}
+		}
 	}
 }
 
@@ -221,7 +269,7 @@ int flip_control_main(int argc, char *argv[])
 {
 	/* warn if no input argument */
 	if (argc < 2) {
-		warnx("usage: flip_control {start|stop|status}");
+		warnx("usage: flip_control {start|stop|status|state}");
 		return 1;
 	}
 
