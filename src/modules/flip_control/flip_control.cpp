@@ -192,11 +192,7 @@ void FlipControl::task_main()
 			orb_copy(ORB_ID(vehicle_command), _command_sub, &_command);
 
 			handle_command(&_command);
-
-
 		}
-
-
 	}
 }
 
