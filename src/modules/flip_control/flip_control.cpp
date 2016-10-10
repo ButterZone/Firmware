@@ -177,6 +177,10 @@ void FlipControl::task_main()
 	/* make sure slip_state is disabled at initialization */
 	_flip_state = FLIP_STATE_DISABLED;
 
+	// first phase roll or pitch target
+	float rotate_target_45 = 45*3.14/180;
+//	float rotate_target_90 = 90*3.14/180;
+
 	// use this to check if a topic is updated
 	bool updated = false;
 
@@ -302,12 +306,17 @@ void FlipControl::task_main()
 				 * 400 degree/second roll to 45 degrees
 				 */
 			{
-				_vehicle_rates_setpoint.roll = 400/180*3.14;
+				_vehicle_rates_setpoint.roll = 400/180*3.14f;
 				_vehicle_rates_setpoint.pitch = 0;
 				_vehicle_rates_setpoint.yaw = 0;
-				_vehicle_rates_setpoint.thrust = 0.5;
+				_vehicle_rates_setpoint.thrust = 1;
 
 				orb_publish(ORB_ID(vehicle_rates_setpoint), _vehicle_rates_setpoint_pub, &_vehicle_rates_setpoint);
+
+				if ((_attitude.roll > rotate_target_45) || _attitude.roll < rotate_target_45) {
+					warnx("target: %f, roll angle: %f", (double) rotate_target_45, (double) _attitude.roll);
+					_flip_state = FLIP_STATE_FINISHED;
+				}
 
 				break;
 			}
