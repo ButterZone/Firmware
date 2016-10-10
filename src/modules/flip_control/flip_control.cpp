@@ -13,6 +13,7 @@
 #include <arch/board/board.h>
 #include <uORB/uORB.h>
 #include <uORB/topics/vehicle_command.h>
+#include <uORB/topics/vehicle_attitude.h>
 #include <uORB/topics/vehicle_attitude_setpoint.h>
 #include <uORB/topics/vehicle_rates_setpoint.h>
 #include <uORB/topics/control_state.h>
@@ -78,12 +79,14 @@ private:
 	/* subscriptions */
 	int 		_command_sub;
 	int 		_vehicle_control_mode_sub;
+	int 		_vehicle_attitude_sub;
 
 	/* publications */
 	orb_advert_t 	_vehicle_control_mode_pub;
 
 	struct vehicle_command_s 		_command;				/**< vehicle commands */
 	struct vehicle_control_mode_s 	_vehicle_control_mode; 	/**< vehicle control mode */
+	struct vehicle_attitude_s 		_attitude;				/**< vehicle attitude */
 
 	/**
 	 * Shim for calling task_main from task_create
@@ -108,12 +111,14 @@ FlipControl::FlipControl() :
 
 		_command_sub(-1),
 		_vehicle_control_mode_sub(-1),
+		_vehicle_attitude_sub(-1),
 
 		_vehicle_control_mode_pub(nullptr)
 
 {
 	memset(&_command, 0, sizeof(_command));
 	memset(&_vehicle_control_mode, 0, sizeof(_vehicle_control_mode));
+	memset(&_attitude, 0, sizeof(_attitude));
 }
 
 FlipControl::~FlipControl()
@@ -177,6 +182,8 @@ void FlipControl::task_main()
 	_command_sub = orb_subscribe(ORB_ID(vehicle_command));
 	/* subscribe to vehicle control mode topic */
 	_vehicle_control_mode_sub = orb_subscribe(ORB_ID(vehicle_control_mode));
+	/* subscribe to vehicle attitude topic */
+	_vehicle_attitude_sub = orb_subscribe(ORB_ID(vehicle_attitude));
 
 	/* advertise control mode topic */
 	_vehicle_control_mode_pub = orb_advertise(ORB_ID(vehicle_control_mode), &_vehicle_control_mode);
@@ -248,9 +255,16 @@ void FlipControl::task_main()
 				handle_command(&_command);
 			}
 
+			// update vehicle attitude
+			orb_check(_vehicle_attitude_sub, &updated);
+			if (updated) {
+				orb_copy(ORB_ID(vehicle_attitude), _vehicle_attitude_sub, &_attitude);
+			}
+
 			// decide what to do based on current flip_state
 			switch (_flip_state) {
 			case FLIP_STATE_DISABLED:
+				// shoudn't even enter this but just in case
 				// do nothing
 				break;
 
@@ -276,11 +290,11 @@ void FlipControl::task_main()
 					topic_changed = true;
 				}
 
-
-				// publish to vehicle rates setpoint if topic is changed
+				// publish to vehicle control mode topic if topic is changed
 				if (topic_changed) {
 					orb_publish(ORB_ID(vehicle_control_mode), _vehicle_control_mode_pub, &_vehicle_control_mode);
 				}
+
 
 				break;
 			}
