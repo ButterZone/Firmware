@@ -275,6 +275,7 @@ void FlipControl::task_main()
 			// publish to vehicle control mode topic if topic is changed
 			if (topic_changed) {
 				orb_publish(ORB_ID(vehicle_control_mode), _vehicle_control_mode_pub, &_vehicle_control_mode);
+				warnx("changed");
 			}
 
 			// update vehicle attitude
@@ -316,6 +317,14 @@ void FlipControl::task_main()
 				/*
 				 * go back to disabled state
 				 */
+
+				// enable manual control and attitude control
+				_vehicle_control_mode.flag_control_manual_enabled = true;
+				_vehicle_control_mode.flag_control_attitude_enabled = true;
+				orb_publish(ORB_ID(vehicle_control_mode), _vehicle_control_mode_pub, &_vehicle_control_mode);
+
+				// switch back to disabled flip state
+				_flip_state = FLIP_STATE_DISABLED;
 				break;
 
 			}
