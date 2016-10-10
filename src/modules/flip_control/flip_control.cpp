@@ -83,10 +83,12 @@ private:
 
 	/* publications */
 	orb_advert_t 	_vehicle_control_mode_pub;
+	orb_advert_t 	_vehicle_rates_setpoint_pub;
 
 	struct vehicle_command_s 		_command;				/**< vehicle commands */
 	struct vehicle_control_mode_s 	_vehicle_control_mode; 	/**< vehicle control mode */
 	struct vehicle_attitude_s 		_attitude;				/**< vehicle attitude */
+	struct vehicle_rates_setpoint_s _vehicle_rates_setpoint;			/**< vehicle rate setpoint */
 
 	/**
 	 * Shim for calling task_main from task_create
@@ -113,12 +115,14 @@ FlipControl::FlipControl() :
 		_vehicle_control_mode_sub(-1),
 		_vehicle_attitude_sub(-1),
 
-		_vehicle_control_mode_pub(nullptr)
+		_vehicle_control_mode_pub(nullptr),
+		_vehicle_rates_setpoint_pub(nullptr)
 
 {
 	memset(&_command, 0, sizeof(_command));
 	memset(&_vehicle_control_mode, 0, sizeof(_vehicle_control_mode));
 	memset(&_attitude, 0, sizeof(_attitude));
+	memset(&_vehicle_rates_setpoint, 0, sizeof(_vehicle_rates_setpoint));
 }
 
 FlipControl::~FlipControl()
@@ -187,6 +191,9 @@ void FlipControl::task_main()
 
 	/* advertise control mode topic */
 	_vehicle_control_mode_pub = orb_advertise(ORB_ID(vehicle_control_mode), &_vehicle_control_mode);
+
+	/* advertise rate setpoint topic */
+	_vehicle_rates_setpoint_pub = orb_advertise(ORB_ID(vehicle_rates_setpoint), &_vehicle_rates_setpoint);
 
 	/*
 	 * declare file descriptor structure, # in the [] means the
@@ -275,7 +282,6 @@ void FlipControl::task_main()
 			// publish to vehicle control mode topic if topic is changed
 			if (topic_changed) {
 				orb_publish(ORB_ID(vehicle_control_mode), _vehicle_control_mode_pub, &_vehicle_control_mode);
-				warnx("changed");
 			}
 
 			// update vehicle attitude
@@ -296,7 +302,12 @@ void FlipControl::task_main()
 				 * 400 degree/second roll to 45 degrees
 				 */
 			{
+				_vehicle_rates_setpoint.roll = 400/180*3.14;
+				_vehicle_rates_setpoint.pitch = 0;
+				_vehicle_rates_setpoint.yaw = 0;
+				_vehicle_rates_setpoint.thrust = 0.5;
 
+				orb_publish(ORB_ID(vehicle_rates_setpoint), _vehicle_rates_setpoint_pub, &_vehicle_rates_setpoint);
 
 				break;
 			}
