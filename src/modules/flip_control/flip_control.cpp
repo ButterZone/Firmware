@@ -258,19 +258,32 @@ void FlipControl::task_main()
 				/*
 				 * 400 degree/second roll to 45 degrees
 				 */
+			{
+				bool topic_changed = false;
 
-				orb_copy(ORB_ID(vehicle_control_mode), _vehicle_control_mode_sub, &_vehicle_control_mode);
+				// copy vehicle control mode topic if updated
+				vehicle_control_mode_poll();
+
 				// disable _v_control_mode.flag_control_manual_enabled
-//				_vehicle_control_mode.flag_control_manual_enabled = false;
+				if (_vehicle_control_mode.flag_control_manual_enabled) {
+					_vehicle_control_mode.flag_control_manual_enabled = false;
+					topic_changed = true;
+				}
 
 				// disable _v_control_mode.flag_conttrol_attitude_enabled
-				_vehicle_control_mode.flag_control_attitude_enabled = false;
+				if (_vehicle_control_mode.flag_control_attitude_enabled) {
+					_vehicle_control_mode.flag_control_attitude_enabled = false;
+					topic_changed = true;
+				}
 
-				// publish to vehicle rates setpoint
-				orb_publish(ORB_ID(vehicle_control_mode), _vehicle_control_mode_pub, &_vehicle_control_mode);
 
+				// publish to vehicle rates setpoint if topic is changed
+				if (topic_changed) {
+					orb_publish(ORB_ID(vehicle_control_mode), _vehicle_control_mode_pub, &_vehicle_control_mode);
+				}
 
 				break;
+			}
 
 			case FLIP_STATE_ROLL:
 				/*
