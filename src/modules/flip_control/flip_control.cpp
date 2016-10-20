@@ -177,6 +177,9 @@ void FlipControl::task_main()
 	/* make sure slip_state is disabled at initialization */
 	_flip_state = FLIP_STATE_DISABLED;
 
+	// inner loop sleep time
+	const unsigned sleeptime_us = 9500;
+
 	// first phase roll or pitch target
 	float rotate_target_45 = 45*3.14/180;
 	// second phase roll or pitch target
@@ -366,6 +369,9 @@ void FlipControl::task_main()
 				break;
 
 			}
+
+			// run at roughly 100 hz
+			usleep(sleeptime_us);
 		}
 	}
 }
@@ -377,8 +383,8 @@ int FlipControl::start()
 	/*start the task */
 	_flip_task = px4_task_spawn_cmd("flip_control",
 									SCHED_DEFAULT,
-									SCHED_PRIORITY_MAX - 5,
-									1500,
+									SCHED_PRIORITY_DEFAULT,
+									2048,
 									(px4_main_t)&FlipControl::task_main_trampoline,
 									nullptr);
 
