@@ -178,7 +178,7 @@ void FlipControl::task_main()
 	_flip_state = FLIP_STATE_DISABLED;
 
 	// inner loop sleep time
-	const unsigned sleeptime_us = 9500;
+	const unsigned sleeptime_us = 2200;
 
 	// first phase roll or pitch target
 	float rotate_target_45 = 45*3.14/180;
