@@ -3390,7 +3390,7 @@ set_control_mode()
 	control_mode.flag_control_offboard_enabled = false;
 
 	switch (status.nav_state) {
-	case vehicle_status_s::NAVIGATIOM_STATE_FLIP:
+	case vehicle_status_s::NAVIGATION_STATE_FLIP:
 		control_mode.flag_control_flip_enabled = true;
 		control_mode.flag_control_manual_enabled = false;
 		control_mode.flag_control_auto_enabled = false;
