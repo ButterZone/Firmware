@@ -648,6 +648,7 @@ bool set_nav_state(struct vehicle_status_s *status, struct commander_state_s *in
 	case commander_state_s::MAIN_STATE_RATTITUDE:
 	case commander_state_s::MAIN_STATE_STAB:
 	case commander_state_s::MAIN_STATE_ALTCTL:
+	case commander_state_s::MAIN_STATE_FLIP:
 
 		/* require RC for all manual modes */
 		if (rc_loss_enabled && (status->rc_signal_lost || status_flags->rc_signal_lost_cmd) && armed) {
@@ -686,6 +687,10 @@ bool set_nav_state(struct vehicle_status_s *status, struct commander_state_s *in
 
 			case commander_state_s::MAIN_STATE_ALTCTL:
 				status->nav_state = vehicle_status_s::NAVIGATION_STATE_ALTCTL;
+				break;
+
+			case commander_state_s::MAIN_STATE_FLIP:
+				status->nav_state = vehicle_status_s::NAVIGATION_STATE_FLIP;
 				break;
 
 			default:
