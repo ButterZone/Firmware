@@ -370,6 +370,7 @@ main_state_transition(struct vehicle_status_s *status, main_state_t new_main_sta
 
 	case commander_state_s::MAIN_STATE_ACRO:
 	case commander_state_s::MAIN_STATE_RATTITUDE:
+	case commander_state_s::MAIN_STATE_FLIP:
 		if (status->is_rotary_wing) {
 			ret = TRANSITION_CHANGED;
 		}
