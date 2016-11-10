@@ -81,6 +81,7 @@ private:
 	int 		_command_sub;
 	int 		_vehicle_control_mode_sub;
 	int 		_vehicle_attitude_sub;
+	int 		_commander_state_sub;
 
 	/* publications */
 	orb_advert_t 	_vehicle_control_mode_pub;
@@ -116,6 +117,7 @@ FlipControl::FlipControl() :
 		_command_sub(-1),
 		_vehicle_control_mode_sub(-1),
 		_vehicle_attitude_sub(-1),
+		_commander_state_sub(-1),
 
 		_vehicle_control_mode_pub(nullptr),
 		_vehicle_rates_setpoint_pub(nullptr)
@@ -170,6 +172,18 @@ void FlipControl::vehicle_control_mode_poll()
 
 	if (updated) {
 		orb_copy(ORB_ID(vehicle_control_mode), _vehicle_control_mode_sub, &_vehicle_control_mode);
+	}
+}
+
+void FlipControl::commander_state()
+{
+	bool updated;
+
+	/* check if commander state has changed */
+	orb_check(_commander_state, &updated);
+
+	if (updated) {
+		orb_copy(ORB_ID(commander_state), _commander_state_sub, &_commander_state);
 	}
 }
 
