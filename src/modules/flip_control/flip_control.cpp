@@ -140,10 +140,14 @@ void FlipControl::handle_command(struct vehicle_command_s *cmd)
 {
 	switch (cmd->command) {
 	case vehicle_command_s::VEHICLE_CMD_FLIP_START:
+		if (_vehicle_control_mode.flag_control_flip_enabled) {
+			warnx("Flip initiated");
 
-		warnx("Flip initiated");
+			_flip_state = FLIP_STATE_START;
+		} else {
+			warnx("Flip rejected, not in flip mode");
+		}
 
-		_flip_state = FLIP_STATE_START;
 		break;
 
 	case vehicle_command_s::VEHICLE_CMD_FLIP_TERMINATE:
