@@ -19,6 +19,7 @@
 #include <uORB/topics/control_state.h>
 #include <uORB/topics/vehicle_control_mode.h>
 #include <uORB/topics/vehicle_status.h>
+#include <uORB/topics/commander_state.h>
 /*
  * flip_control.cpp
  *
@@ -89,6 +90,7 @@ private:
 	struct vehicle_control_mode_s 	_vehicle_control_mode; 	/**< vehicle control mode */
 	struct vehicle_attitude_s 		_attitude;				/**< vehicle attitude */
 	struct vehicle_rates_setpoint_s _vehicle_rates_setpoint;			/**< vehicle rate setpoint */
+	struct commander_state_s _commander_state;	/**< commander state aka flight mode */
 
 	/**
 	 * Shim for calling task_main from task_create
@@ -196,6 +198,9 @@ void FlipControl::task_main()
 
 	int poll_interval = 100; // listen to the topic every x millisecond
 
+	// last state
+	int last_state = 0;
+
 	/* subscribe to vehicle command topic */
 	_command_sub = orb_subscribe(ORB_ID(vehicle_command));
 	/* subscribe to vehicle control mode topic */
@@ -262,6 +267,13 @@ void FlipControl::task_main()
 		 * check for updates in other topics
 		 */
 		vehicle_control_mode_poll();
+
+		/*
+		 * remember the flight mode before switching to flip mode
+		 */
+		if (_vehicle_control_mode.flag_control_flip_enabled == false) {
+			last_state = _commander_state.main_state;
+		}
 
 
 		/*
