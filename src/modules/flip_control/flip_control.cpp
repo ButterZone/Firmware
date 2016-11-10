@@ -127,6 +127,7 @@ FlipControl::FlipControl() :
 	memset(&_vehicle_control_mode, 0, sizeof(_vehicle_control_mode));
 	memset(&_attitude, 0, sizeof(_attitude));
 	memset(&_vehicle_rates_setpoint, 0, sizeof(_vehicle_rates_setpoint));
+	memset(&_commander_state, 0, sizeof(_commander_state));
 }
 
 FlipControl::~FlipControl()
