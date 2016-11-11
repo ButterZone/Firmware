@@ -19,7 +19,6 @@
 #include <uORB/topics/control_state.h>
 #include <uORB/topics/vehicle_control_mode.h>
 #include <uORB/topics/vehicle_status.h>
-#include <uORB/topics/commander_state.h>
 /*
  * flip_control.cpp
  *
@@ -66,6 +65,7 @@ public:
 	 */
 	void vehicle_control_mode_poll();
 
+
 private:
 	bool 		_task_should_exit; 		/**< if true, main task should exit */
 	int 		_flip_task;				/**< task handle */
@@ -81,7 +81,6 @@ private:
 	int 		_command_sub;
 	int 		_vehicle_control_mode_sub;
 	int 		_vehicle_attitude_sub;
-	int 		_commander_state_sub;
 
 	/* publications */
 	orb_advert_t 	_vehicle_control_mode_pub;
@@ -91,7 +90,6 @@ private:
 	struct vehicle_control_mode_s 	_vehicle_control_mode; 	/**< vehicle control mode */
 	struct vehicle_attitude_s 		_attitude;				/**< vehicle attitude */
 	struct vehicle_rates_setpoint_s _vehicle_rates_setpoint;			/**< vehicle rate setpoint */
-	struct commander_state_s _commander_state;	/**< commander state aka flight mode */
 
 	/**
 	 * Shim for calling task_main from task_create
@@ -117,17 +115,14 @@ FlipControl::FlipControl() :
 		_command_sub(-1),
 		_vehicle_control_mode_sub(-1),
 		_vehicle_attitude_sub(-1),
-		_commander_state_sub(-1),
 
 		_vehicle_control_mode_pub(nullptr),
 		_vehicle_rates_setpoint_pub(nullptr)
-
 {
 	memset(&_command, 0, sizeof(_command));
 	memset(&_vehicle_control_mode, 0, sizeof(_vehicle_control_mode));
 	memset(&_attitude, 0, sizeof(_attitude));
 	memset(&_vehicle_rates_setpoint, 0, sizeof(_vehicle_rates_setpoint));
-	memset(&_commander_state, 0, sizeof(_commander_state));
 }
 
 FlipControl::~FlipControl()
@@ -176,18 +171,6 @@ void FlipControl::vehicle_control_mode_poll()
 	}
 }
 
-void FlipControl::commander_state()
-{
-	bool updated;
-
-	/* check if commander state has changed */
-	orb_check(_commander_state, &updated);
-
-	if (updated) {
-		orb_copy(ORB_ID(commander_state), _commander_state_sub, &_commander_state);
-	}
-}
-
 void FlipControl::task_main_trampoline(int argc, char *argv[])
 {
 	flip_control::g_flip->task_main();
@@ -228,6 +211,7 @@ void FlipControl::task_main()
 
 	/* advertise rate setpoint topic */
 	_vehicle_rates_setpoint_pub = orb_advertise(ORB_ID(vehicle_rates_setpoint), &_vehicle_rates_setpoint);
+
 
 	/*
 	 * declare file descriptor structure, # in the [] means the
@@ -282,14 +266,6 @@ void FlipControl::task_main()
 		 * check for updates in other topics
 		 */
 		vehicle_control_mode_poll();
-
-		/*
-		 * remember the flight mode before switching to flip mode
-		 */
-		if (_vehicle_control_mode.flag_control_flip_enabled == false) {
-			last_state = _commander_state.main_state;
-		}
-
 
 		/*
 		 * switch to faster update during the flip
@@ -397,6 +373,7 @@ void FlipControl::task_main()
 
 				// switch back to disabled flip state
 				_flip_state = FLIP_STATE_DISABLED;
+
 				break;
 
 			}
